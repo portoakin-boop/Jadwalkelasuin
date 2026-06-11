@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jadwal Kelas UIN - Login</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.login-container p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    color: #e74c3c;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 13px;
+    display: none;
+    padding: 10px;
+    background: #fadbd8;
+    border-radius: 5px;
+    border-left: 4px solid #e74c3c;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.success-message {
+    color: #27ae60;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 13px;
+    display: none;
+    padding: 10px;
+    background: #d5f4e6;
+    border-radius: 5px;
+    border-left: 4px solid #27ae60;
+}
+
+.success-message.show {
+    display: block;
+}
+
+.jadwal-container {
+    display: none;
+}
+
+.jadwal-container.active {
+    display: block;
+}
+
+/* Jadwal Kelas Styles */
+.jadwal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.jadwal-header h1 {
+    text-align: left;
+    color: white;
+}
+
+.logout-btn {
+    padding: 10px 20px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+}
+
+.cinema {
+    background: #1b1b2f;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.floor-label {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+    color: #FFD700;
+    text-align: center;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+
+.seat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 5px;
+}
+
+.seat-box input {
+    width: 60px;
+    margin-top: 5px;
+    padding: 4px;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 5px;
+    border: none;
+}
+
+.seat {
+    width: 40px;
+    height: 40px;
+    background: gray;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.seat:hover {
+    transform: scale(1.1);
+}
+
+.selected {
+    background: limegreen;
+}
+
+.occupied {
+    background: red;
+}
+
+.info {
+    margin-top: 20px;
+    font-size: 18px;
+    color: white;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SECTION -->
+<div class="login-container" id="loginContainer">
+    <h1> Jadwal Kelas UIN</h1>
+    <p>Masukkan password untuk mengakses jadwal kelas</p>
+    
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+    
+    <div class="form-group">
+        <label for="passwordInput">Password:</label>
+        <input type="password" id="passwordInput" placeholder="Masukkan password" />
+    </div>
+    
+    <button class="login-btn" onclick="validateLogin()">Login</button>
+</div>
+
+<!-- JADWAL KELAS SECTION -->
+<div class="jadwal-container" id="jadwalContainer">
+    <div class="jadwal-header">
+        <h1 style="color: white;">Jadwal Kelas UIN</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="cinema">
+        <div class="floor-label">Lantai 1</div>
+        <div class="row">
+           <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-101" style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-102" style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-103"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-104"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-105"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-106"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-107"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-108"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-101"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-102"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-103"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-104"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-105"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-106"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-107"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-108"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-101"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-102"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-103"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-104"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-105"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-106"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-107"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-108"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-101"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-102"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-103"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-104"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-105"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-106"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-107"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-108"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-101"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-102"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-103"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-104"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-105"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-106"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-107"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-108"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="floor-label">Lantai 2</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-201"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-202"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-203"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-204"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-205"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-206"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-207"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-208"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-202"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-202"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-203"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-204"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-205"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-206"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-207"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-208"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-201"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-202"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-203"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-204"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-205"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-206"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-207"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-208"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-201"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-202"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-203"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-204"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-205"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-206"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-207"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-208"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-201"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-202"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-203"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-204"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-205"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-206"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-207"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-208"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="floor-label">Lantai 3</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-301"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-302"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-303"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-304"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-305"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-306"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-307"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-308"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-301"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-302"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-303"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-304"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-305"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-306"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-307"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-308"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-301"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-302"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-303"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-304"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-305"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-306"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-307"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-308"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-301"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-302"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-303"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-304"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-305"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-306"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-307"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-308"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-301"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-302"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-303"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-304"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-305"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-306"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-307"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-308"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="floor-label">Lantai 4</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-401"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-402"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-403"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-404"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-405"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-406"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-407"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-408"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-401"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-402"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-403"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-404"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-405"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-406"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-407"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-408"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-401"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-402"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-403"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-404"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-405"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-406"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-407"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-408"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-401"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-402"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-403"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-404"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-405"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-406"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-407"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-408"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-401"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-402"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-403"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-404"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-405"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-406"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-407"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-408"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="floor-label">Lantai 5</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-501"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-502"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-503"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-504"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-505"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-506"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-507"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-508"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-501"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-502"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-503"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-504"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-505"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-506"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-507"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-508"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-501"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-502"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-503"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-504"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-505"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-506"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-507"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-508"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-501"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-502"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-503"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-504"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-505"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-506"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-507"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-508"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-501"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-502"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-503"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-504"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-505"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-506"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-507"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-508"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+         <div class="floor-label">Lantai 6</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-601"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-602"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-603"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-604"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-605"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-606"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-607"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-608"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-601"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-602"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-603"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-604"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-605"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-606"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-607"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-608"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-601"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-602"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-603"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-604"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-605"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-606"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-607"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-608"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-601"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-602"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-603"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-604"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-605"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-606"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-607"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-608"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-601"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-602"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-603"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-604"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-605"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-606"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-607"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-608"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+         <div class="floor-label">Lantai 7</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-701"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-702"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-703"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-704"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-705"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-706"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-707"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-708"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-701"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-702"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-703"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-704"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-705"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-706"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-707"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-708"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-701"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-702"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-703"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-704"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-705"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-706"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-707"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-708"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-701"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-702"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-703"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-704"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-705"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-706"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-707"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-708"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-701"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-702"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-703"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-704"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-705"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-706"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-707"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-708"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+         <div class="floor-label">Lantai 8</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-801"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-802"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-803"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-804"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-805"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-806"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-807"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-808"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-801"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-802"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-803"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-804"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-805"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-806"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-807"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-808"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-801"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-802"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-803"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-804"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-805"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-806"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-807"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-808"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-801"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-802"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-803"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-804"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-805"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-806"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-807"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-808"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-801"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-802"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-803"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-804"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-805"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-806"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-807"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-808"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+         <div class="floor-label">Lantai 9</div>
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-901"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-902"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-903"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-904"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-905"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-906"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-907"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="A-908"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-901"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-902"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-903"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-904"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-905"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-906"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-907"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="B-908"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-901"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-902"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-903"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-904"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-905"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-906"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-907"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="C-908"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-901"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-902"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-903"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-904"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-905"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-906"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-907"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="D-908"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+
+        <div class="row">
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-901"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-902"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-903"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-904"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-905"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-906"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-907"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+            <div class="seat-box"><div class="seat"></div><input type="text" placeholder="E-908"style="background: #eae1e1; color: #fff; border: 1px solid #555;" disabled><input type="text" placeholder="Jam"></div>
+        </div>
+        <div class="info">Kelas Dipakai: <span id="count">0</span></div>
+    </div>
+</div>
+
+<script>
+const CORRECT_PASSWORD = "uin2026"; // Ubah password sesuai kebutuhan
+
+function validateLogin() {
+    const passwordInput = document.getElementById('passwordInput').value;
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    
+    // Hapus pesan sebelumnya
+    errorMessage.classList.remove('show');
+    successMessage.classList.remove('show');
+    
+    if (passwordInput === '') {
+        errorMessage.textContent = '⚠️ Password tidak boleh kosong!';
+        errorMessage.classList.add('show');
+        return;
+    }
+    
+    if (passwordInput === CORRECT_PASSWORD) {
+        successMessage.textContent = '✓ Login berhasil! Mengalihkan...';
+        successMessage.classList.add('show');
+        
+        setTimeout(() => {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('jadwalContainer').classList.add('active');
+            initializeSeats();
+        }, 1000);
+    } else {
+        errorMessage.textContent = '❌ Password salah! Coba lagi.';
+        errorMessage.classList.add('show');
+        document.getElementById('passwordInput').value = '';
+    }
+}
+
+function logout() {
+    document.getElementById('jadwalContainer').classList.remove('active');
+    document.getElementById('loginContainer').style.display = 'flex';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('errorMessage').classList.remove('show');
+    document.getElementById('successMessage').classList.remove('show');
+}
+
+function initializeSeats() {
+    const seats = document.querySelectorAll('.seat');
+    const count = document.getElementById('count');
+    
+    function updateCount() {
+        const selectedSeats = document.querySelectorAll('.seat.selected');
+        count.textContent = selectedSeats.length;
+    }
+    
+    seats.forEach(seat => {
+        seat.addEventListener('click', () => {
+            if (seat.classList.contains('occupied')) {
+                seat.classList.remove('occupied');
+            } else if (seat.classList.contains('selected')) {
+                seat.classList.remove('selected');
+            } else {
+                seat.classList.add('selected');
+            }
+            updateCount();
+        });
+    });
+}
+
+// Deteksi Enter key di password input
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('passwordInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            validateLogin();
+        }
+    });
+});
+</script>
+
+</body>
+</html>
